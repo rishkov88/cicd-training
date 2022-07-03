@@ -1,0 +1,66 @@
+version: 2.1
+
+commands:
+  print_pipeline_id:
+    steps:
+      - run:
+          command: echo " l'id du pipelise est ${CIRCLE_WORKFLOW_ID}"
+
+default: &default
+    docker:
+      - image: alpine:latest
+aws_cli: &aws_cli
+    docker: 
+      - image: amazon/aws-cli
+jobs:
+  use_parameter:
+    <<: *default
+    steps:
+      - print_pipeline_id
+#      - run: return 1
+#      - run:
+#          command: echo "vous avez une erreur :("
+#          when: on_fail
+  create_infra:
+    <<: *aws_cli
+    steps:
+      - checkout
+      - run:
+          name: create stack cloudformation
+          command: |
+              aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
+              --template-file aws_config/networkinfrastructure.yml 
+#              --parameter-overrides aws_config/networkparameter.json
+      - run:
+          name: 
+          command: |
+              aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
+              --template-file aws_config/serverinfrastructure.yml
+      - run:
+          name: rollback
+          command: | 
+              aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
+              && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
+          when: on_fail
+
+#  create_server_infra:
+#    <<: *aws_cli
+#    steps:
+#      - checkout
+#      - run:
+#          name: create stack cloudformation
+#          command: |
+#              aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
+#              --template-file aws_config/serverinfrastructure.yml
+##              --parameter-overrides aws_config/serverparameter.json
+  
+workflows:
+  cicd_flow:
+    jobs:
+      - use_parameter
+      - create_infra:
+          requires:
+            - use_parameter
+#      - create_server_infra:
+#          requires:
+#            - create_network_infra

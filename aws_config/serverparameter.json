@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "CI/CD TRAINING"
+    },
+    {
+        "ParameterKey": "AMItoUse",
+        "ParameterValue": "ami-09a41e26df464c548" /* ami of debian image */
+    },
+    {
+        "ParameterKey": "KeyToUse",
+        "ParameterValue": "ansible-test" // ssh key
+    }
+]

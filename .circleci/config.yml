@@ -26,13 +26,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: create stack cloudformation
+          name: create network stack cloudformation
           command: |
               aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
               --template-file aws_config/networkinfrastructure.yml --region us-east-1
 #              --parameter-overrides aws_config/networkparameter.json
       - run:
-          name: 
+          name: create server stack cloudformation
           command: |
               aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
               --template-file aws_config/serverinfrastructure.yml

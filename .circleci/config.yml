@@ -27,7 +27,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: create network stack cloudformation
+          name: create network stack cloudformation 
           command: |
               aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
               --template-file aws_config/networkinfrastructure.yml

@@ -4,6 +4,7 @@ commands:
   print_pipeline_id:
     steps:
       - run:
+          name: print workflowid
           command: echo " l'id du pipelise est ${CIRCLE_WORKFLOW_ID}"
 
 default: &default
@@ -29,7 +30,7 @@ jobs:
           name: create network stack cloudformation
           command: |
               aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
-              --template-file aws_config/networkinfrastructure.yml --region us-east-1
+              --template-file aws_config/networkinfrastructure.yml
 #              --parameter-overrides aws_config/networkparameter.json
       - run:
           name: create server stack cloudformation

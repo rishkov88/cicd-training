@@ -22,7 +22,7 @@ jobs:
 #      - run:
 #          command: echo "vous avez une erreur :("
 #          when: on_fail
-  create_infra:
+  create_network_infra:
     <<: *aws_cli
     steps:
       - checkout
@@ -33,14 +33,23 @@ jobs:
               --template-file aws_config/networkinfrastructure.yml
 #              --parameter-overrides aws_config/networkparameter.json
       - run:
+          name: rollback if fail
+          command: aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
+          when: on_fail
+
+  create_server_infra:
+    <<: *aws_cli
+    steps:
+      - checkout
+      - run:
           name: create server stack cloudformation
           command: |
               aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
               --template-file aws_config/serverinfrastructure.yml
       - run:
-          name: rollback
+          name: rollback if fail
           command: | 
-              aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} --region us-east-1\
+              aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
               && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
           when: on_fail
 
@@ -59,9 +68,9 @@ workflows:
   cicd_flow:
     jobs:
       - use_parameter
-      - create_infra:
+      - create_network_infra:
           requires:
             - use_parameter
-#      - create_server_infra:
-#          requires:
-#            - create_network_infra
+      - create_server_infra:
+          requires:
+            - create_network_infra

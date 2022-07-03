@@ -29,7 +29,7 @@ jobs:
           name: create stack cloudformation
           command: |
               aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
-              --template-file aws_config/networkinfrastructure.yml 
+              --template-file aws_config/networkinfrastructure.yml --region us-east-1
 #              --parameter-overrides aws_config/networkparameter.json
       - run:
           name: 
@@ -39,8 +39,8 @@ jobs:
       - run:
           name: rollback
           command: | 
-              aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
-              && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
+              aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} --region us-east-1\
+              && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
           when: on_fail
 
 #  create_server_infra:

@@ -9,14 +9,16 @@ commands:
         - run:
             name: destroy infrastructure
             when: on_fail
-            command: aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
+            command: echo "bravo, vous avez échoué le réseau"
+#            command: aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
 
     destroy_servers:    ## job de suppression de la pile des serveurs cloudformation
       steps:
         - run:
             name: destroy infrastructure
             when: on_fail
-            command: aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME}
+            command: echo "bravo, vous avez échoué le server"
+#            command: aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME}
 
 ## Dockers image
 python_ansible: &python_ansible
@@ -38,12 +40,13 @@ jobs:
         <<: *aws_cli
         steps:
           - checkout
-          - run:
+          - run: 
                 name: create network stack cloudformation
                 command: |
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
+          - run: return 1
           - destroy_network  # rollback if fail
 
     create_server_infra:
@@ -56,7 +59,7 @@ jobs:
                     aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/serverinfrastructure.yml
           - destroy_network   # rollback if fail
-          - destroy_servers  # rollback if fail
+          - destroy_servers   # rollback if fail
 
     write_inventory:
         <<: *aws_cli
@@ -68,8 +71,8 @@ jobs:
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> inventory.yml
-          - destroy_network
-          - destroy_servers
+          - destroy_network   # rollback if fail
+          - destroy_servers   # rollback if fail
 
 ### Deploy in infrastructure
 
@@ -86,8 +89,8 @@ jobs:
           - run:
                 name: run playbook
                 command: ansible-playbook .circleci/main.yml -i inventory.yml
-          - destroy_network
-          - destroy_servers
+          - destroy_network   # rollback if fail
+          - destroy_servers   # rollback if fail
 
 ### section de smoke test
     smoke_test:
@@ -103,8 +106,8 @@ jobs:
                     else
                           echo "It's failled"
                     fi
-#          - destroy_network
-#          - destroy_servers               
+          - destroy_network   # rollback if fail
+          - destroy_servers   # rollback if fail               
             
 
 workflows:
@@ -125,4 +128,3 @@ workflows:
           requires:
             - deploy_server
       
-

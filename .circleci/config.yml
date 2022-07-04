@@ -34,7 +34,7 @@ jobs:
         <<: *aws_cli
         steps:
           - checkout
-          #- run: cat inventory.txt
+          - run: cat inventory.txt
           - run: 
                 name: create network stack cloudformation
                 command: |

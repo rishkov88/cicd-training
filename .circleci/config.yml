@@ -46,8 +46,6 @@ jobs:
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
-          - run: 
-                command: return 1
           - destroy_network  # rollback if fail
 
     create_server_infra:
@@ -59,6 +57,7 @@ jobs:
                 command: |
                     aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/serverinfrastructure.yml
+          - run: return 1
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail
 

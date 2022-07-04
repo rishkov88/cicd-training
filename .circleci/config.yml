@@ -1,0 +1,120 @@
+## automatisation de deployement
+
+version: 2.1
+
+## section de commande de factorisation de code
+commands:
+    restore:    ## job de suppression des piles cloudformation
+      docker: 
+        - image: amazon/aws-cli
+      steps:
+        - run:
+            name: destroy infrastructure
+            when: on_fail
+            command: |
+                aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
+                && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
+              
+
+## Dockers image
+python_ansible:
+    docker:
+      - image: python:3.9-bullseye
+
+alpine: &alpine     ## image de alpine
+    docker:
+      - image: alpine:latest
+
+aws_cli: &aws_cli     ## image du cli d'amazon
+    docker: 
+      - image: amazon/aws-cli
+
+################# section de des jobs ###############
+
+jobs:
+
+    create_network_infra:
+        <<: *aws_cli
+        steps:
+          - checkout
+          - run:
+                name: create network stack cloudformation
+                command: |
+                    aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
+                    --template-file ./circleci/aws_config/networkinfrastructure.yml
+#                    --parameter-overrides aws_config/networkparameter.json
+          - restore  # rollback if fail
+            #  when: on_fail
+
+    create_server_infra:
+        <<: *aws_cli
+        steps:
+          - checkout
+          - run:
+                name: create server stack cloudformation
+                command: |
+                    aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
+                    --template-file ./circleci/aws_config/serverinfrastructure.yml
+          - run:  # write inventory file
+                name: write inventory file
+                command: |
+                    echo "[web]" > inventory.yml && \
+                    aws cloudformation describe-instances --query \
+                    " Reservation[*].Instances[*].PublicIpAddress  \
+                    --output text >> .circleci/inventory.yml
+          - run: cat .circleci/inventory.yml
+          - restore  # rollback if fail
+              #when: on_fail
+
+
+### Deploy in infrastructure
+
+#    deploy_server:
+#        <<: *python_ansible
+#        steps:
+#          - checkout
+#          - add_ssh_keys: 
+#              fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
+#          - run:
+#                name: install ansible
+#                command: |
+#                    apt-get update && apt-get install ansible -y
+#          - run:
+#                name: run playbook
+#                command: |
+#                    ansible-playbook .circleci/main.yml -i .circleci/inventory.yml 
+
+### section de smoke test
+#    smoke_test:
+#        <<: *alpine
+#        steps:
+#          - run: 
+#                name: run test
+#                command: 
+#                    URL="aws cloudformation describe-instances --query " Reservation[*].Instances[*].PublicIpAddress""
+#                    if curl -s --head "https://google.com"
+#                        then
+#                          return 0
+#                          echo "It's work!"
+#                    else
+#                          return 1
+#                          echo "It's failled"
+#                    fi
+#          - restore
+#            when: on_fail                
+            
+
+workflows:
+  cd_workflow:
+    jobs:
+      - create_network_infra
+      - create_server_infra:
+          requires:
+            - create_network_infra
+#      - deploy_server:
+#          requires:
+#            - create_server_infra
+#      - semoke_test:
+#          requires:
+#            - deploy_server
+      

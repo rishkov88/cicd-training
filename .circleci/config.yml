@@ -66,10 +66,10 @@ jobs:
           - run:  # write inventory file
                 name: write inventory file
                 command: |
-                    echo "[web]" > inventory.txt && \
+                    echo "[web]" > .circleci/inventory.txt && \
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
-                    --output text >> inventory.txt
+                    --output text >> .circleci/inventory.txt
           - run: mkdir workspace && yum install tar -y && yum install gzip -y
           - persist_to_workspace:
                 root: .circleci/
@@ -85,8 +85,8 @@ jobs:
         steps:
           - checkout
           - attach_workspace:
-                at: ~/
-          - run: yum install tar -y && cat inventory.txt
+                at: .circleci/
+          - run: yum install tar -y && cat .circleci/inventory.txt
           - add_ssh_keys: 
                 fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
           - run:
@@ -95,7 +95,7 @@ jobs:
                     apt-get update && apt-get install ansible -y
           - run:
                 name: run playbook
-                command: ansible-playbook .circleci/main.yml -i inventory.txt
+                command: ansible-playbook .circleci/main.yml -i .circleci/inventory.txt
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail
 

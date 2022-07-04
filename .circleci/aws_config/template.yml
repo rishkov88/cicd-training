@@ -161,6 +161,7 @@ Resources:
 Outputs:
     WebServerInstance:
         Description: A reference to the created Instance
-        Value: Fn::Join: ["" , [ "http://" , { Fn::GetAtt: [ WebServerInstance, PublicDnsName ] } ]]
+        Value: 
+            Fn::Join: ["" , [ "http://" , { Fn::GetAtt: [ WebServerInstance, PublicDnsName ] } ]]
         Export:
             Name: WebServer-DNSNAME #!Sub ${EnvironmentName}-WebServer-DNSNAME

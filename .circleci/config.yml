@@ -39,7 +39,7 @@ jobs:
                 name: create network stack cloudformation
                 command: |
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
-                    --template-file ./circleci/aws_config/networkinfrastructure.yml
+                    --template-file .circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
           - restore  # rollback if fail
             #  when: on_fail
@@ -52,7 +52,7 @@ jobs:
                 name: create server stack cloudformation
                 command: |
                     aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
-                    --template-file ./circleci/aws_config/serverinfrastructure.yml
+                    --template-file .circleci/aws_config/serverinfrastructure.yml
           - run:  # write inventory file
                 name: write inventory file
                 command: |

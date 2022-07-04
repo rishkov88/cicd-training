@@ -72,7 +72,7 @@ jobs:
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> workspace/inventory.txt
-          - run: cat inventory.txt && ls -al
+          - run: cat workspace/inventory.txt && ls -al
           - persist_to_workspace:
                 root: workspace/
                 paths:

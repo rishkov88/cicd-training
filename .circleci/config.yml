@@ -36,7 +36,7 @@ jobs:
           - run:
                 name: create server stack cloudformation
                 command: aws cloudformation deploy --stack-name infra-${CIRCLE_PROJECT_REPONAME} \
-                    --template-file .circleci/aws_config/template.yml
+                    --template-file .circleci/aws_config/infracloudformation.yml
 ###                    --parameter-overrides aws_config/networkparameter.json
           - destroy_infra   # rollback if fail 
 

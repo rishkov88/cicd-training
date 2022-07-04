@@ -71,28 +71,27 @@ jobs:
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> inventory.yml
-          - run: cat inventory.yml
           - destroy_network
           - destroy_servers
 
 ### Deploy in infrastructure
 
-#    deploy_server:
-#        <<: *python_ansible
-#        steps:
-#          - checkout
-#          - add_ssh_keys: 
-#              fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
-#          - run:
-#                name: install ansible
-#                command: |
-#                    apt-get update && apt-get install ansible -y
-#          - run:
-#                name: run playbook
-#                command: |
-#                    ansible-playbook .circleci/main.yml -i .circleci/inventory.yml
-#          - destroy_network
-#          - destroy_servers
+    deploy_server:
+        <<: *python_ansible
+        steps:
+          - checkout
+          - add_ssh_keys: 
+              fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
+          - run:
+                name: install ansible
+                command: |
+                    apt-get update && apt-get install ansible -y
+          - run:
+                name: run playbook
+                command: |
+                    ansible-playbook .circleci/main.yml -i .circleci/inventory.yml
+          - destroy_network
+          - destroy_servers
 
 ### section de smoke test
 #    smoke_test:

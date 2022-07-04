@@ -7,7 +7,7 @@ commands:
     destroy_network:    ## job de suppression de la  pile du réseau cloudformation
       steps:
         - run:
-            name: destroy infrastructure
+            name: destroy network infrastructure
             when: on_fail
 #            command: echo "bravo, vous avez échoué le réseau"
             command: aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
@@ -15,10 +15,12 @@ commands:
     destroy_servers:    ## job de suppression de la pile des serveurs cloudformation
       steps:
         - run:
-            name: destroy infrastructure
+            name: destroy server infrastructure
             when: on_fail
 #            command: echo "bravo, vous avez échoué le server"
             command: aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME}
+            requires:
+                - destroy_network
 
 ## Dockers image
 python_ansible: &python_ansible
@@ -111,7 +113,6 @@ jobs:
                     else
                           echo "It's failled"
                     fi
-                    cat .circleci/inventory.txt
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail               
 

@@ -123,8 +123,8 @@ workflows:
       - write_inventory:
           requires:
             - create_server_infra
-#      - deploy_server:
-#          requires:
+      - deploy_server:
+          requires:
 #            - create_server_infra
 #      - semoke_test:
 #          requires:

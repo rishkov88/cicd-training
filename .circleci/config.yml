@@ -70,7 +70,7 @@ jobs:
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> inventory.yml
-          - run: cat inventory.yml
+          - run: cat inventory.yml && pwd
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail
 
@@ -80,6 +80,7 @@ jobs:
         <<: *python_ansible
         steps:
           - checkout
+          - run: cat inventory.yml
           - add_ssh_keys: 
                 fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
           - run:

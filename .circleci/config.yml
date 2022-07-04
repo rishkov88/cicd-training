@@ -71,7 +71,7 @@ jobs:
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> inventory.yml
-          - run: pwd
+          - run: cat inventory.yml
           - destroy_network
           - destroy_servers
 

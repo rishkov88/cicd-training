@@ -69,8 +69,12 @@ jobs:
                     echo "[web]" > inventory.yml && \
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
-                    --output text >> inventory.yml
-          - run: cat inventory.yml && pwd && ls -a
+                    --output text >> inventory.txt
+          - run: cat inventory.txt && pwd && ls -a
+          - persist_to_workspace:
+                root: ~/
+                paths:
+                  - inventory.txt
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail
 
@@ -80,7 +84,9 @@ jobs:
         <<: *python_ansible
         steps:
           - checkout
-          - run: cat inventory.yml
+          - attach_workspace:
+                at: ~/
+          - run: cat inventory.txt
           - add_ssh_keys: 
                 fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
           - run:
@@ -89,7 +95,7 @@ jobs:
                     apt-get update && apt-get install ansible -y
           - run:
                 name: run playbook
-                command: ansible-playbook .circleci/main.yml -i inventory.yml
+                command: ansible-playbook .circleci/main.yml -i inventory.txt
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail
 

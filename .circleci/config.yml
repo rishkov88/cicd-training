@@ -53,17 +53,20 @@ jobs:
                 command: |
                     aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/serverinfrastructure.yml
-          - run:  # write inventory file
-                name: write inventory file
-                command: |
-                    echo "[web]" > inventory.yml && \
-                    aws cloudformation describe-instances --query \
-                    " Reservation[*].Instances[*].PublicIpAddress  \
-                    --output text >> .circleci/inventory.yml
           - run: cat .circleci/inventory.yml
           - restore  # rollback if fail
               #when: on_fail
 
+#    write_inventory:
+#        <<: *aws_cli
+#        steps:
+#          - run:  # write inventory file
+#                name: write inventory file
+#                command: |
+#                    echo "[web]" > inventory.yml && \
+#                    aws cloudformation describe-instances --query \
+#                    " Reservation[*].Instances[*].PublicIpAddress  \
+#                    --output text >> .circleci/inventory.yml
 
 ### Deploy in infrastructure
 
@@ -109,6 +112,9 @@ workflows:
       - create_server_infra:
           requires:
             - create_network_infra
+#      - write_inventory:
+#          requires:
+#            - create_server
 #      - deploy_server:
 #          requires:
 #            - create_server_infra

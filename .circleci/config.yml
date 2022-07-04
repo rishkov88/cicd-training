@@ -63,7 +63,6 @@ jobs:
     write_inventory:
         <<: *aws_cli
         steps:
-          - checkout
           - run: mkdir workspace && yum install tar -y && yum install gzip -y
           - run:  # write inventory file
                 name: write inventory file
@@ -88,7 +87,7 @@ jobs:
           - checkout
           - attach_workspace:
                 at: .circleci/
-          - run: yum install tar -y && cat .circleci/inventory.txt
+          - run: cat workspace/inventory.txt
           - add_ssh_keys: 
                 fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
           - run:

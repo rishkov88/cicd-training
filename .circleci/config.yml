@@ -63,17 +63,15 @@ jobs:
     write_inventory:
         <<: *aws_cli
         steps:
-          - run: mkdir workspace && yum install tar -y && yum install gzip -y
+          - checkout
           - run:  # write inventory file
                 name: write inventory file
                 command: |
-                    echo "[web]" > workspace/inventory.txt && \
-                    aws ec2 describe-instances --query \
-                    "Reservations[*].Instances[*].PublicIpAddress"  \
-                    --output text >> workspace/inventory.txt
-          - run: cat workspace/inventory.txt && ls -al
+                    echo "[web]" > .circleci/inventory.txt && aws ec2 describe-instances --query \
+                    "Reservations[*].Instances[*].PublicIpAddress" --output text >> .circleci/inventory.txt
+          - run:  yum install tar -y && yum install gzip -y
           - persist_to_workspace:
-                root: workspace/
+                root: .circleci/
                 paths:
                   - inventory.txt
           - destroy_network   # rollback if fail
@@ -86,8 +84,7 @@ jobs:
         steps:
           - checkout
           - attach_workspace:
-                at: workspace/
-          - run: cat workspace/inventory.txt
+                at: .circleci/
           - add_ssh_keys: 
                 fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
           - run:

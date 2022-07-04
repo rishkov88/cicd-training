@@ -107,7 +107,9 @@ jobs:
                     fi
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail               
-            
+
+################# Workflow section #################
+
 workflows:
   cd_workflow:
     jobs:

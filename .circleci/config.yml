@@ -66,8 +66,8 @@ jobs:
           - run:  # write inventory file
                 name: write inventory file
                 command: |
-                    echo "[web]" > .circleci/inventory.txt && \
-                    aws ec2 describe-instances --query \
+                    touch .circleci/inventory.txt && echo "[web]" > .circleci/inventory.txt
+          - run: aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> .circleci/inventory.txt
           - run: mkdir workspace && yum install tar -y && yum install gzip -y

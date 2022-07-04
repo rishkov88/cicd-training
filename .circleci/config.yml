@@ -10,10 +10,11 @@ commands:
       steps:
         - run:
             name: destroy infrastructure
+            when: on_fail
             command: |
                 aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                 && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
-              when: on_fail
+              
 
 ## Dockers image
 python_ansible:

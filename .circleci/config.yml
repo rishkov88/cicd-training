@@ -66,7 +66,7 @@ jobs:
           - run:  # write inventory file
                 name: write inventory file
                 command: |
-                    touch .circleci/inventory.txt && echo "[web]" > inventory.txt
+                    echo "[web]" > .circleci/inventory.txt
           - run: aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> .circleci/inventory.txt

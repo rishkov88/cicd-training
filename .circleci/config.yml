@@ -30,14 +30,7 @@ aws_cli: &aws_cli     ## image du cli d'amazon
 ################# section de des jobs ###############
 
 jobs:
-#  use_parameter:
-#    <<: *alpine
-#    steps:
-#      - print_pipeline_id
-#      - run: return 1
-#      - run:
-#          command: echo "vous avez une erreur :("
-#          when: on_fail
+
     create_network_infra:
         <<: *aws_cli
         steps:

@@ -105,7 +105,6 @@ jobs:
                     else
                           echo "It's failled"
                     fi
-          - run: return 1
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail               
             

@@ -70,7 +70,8 @@ jobs:
                     echo "[web]" > inventory.yml && \
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
-                    --output text >> .circleci/inventory.yml
+                    --output text >> inventory.yml
+          - run: pwd
           - destroy_network
           - destroy_servers
 

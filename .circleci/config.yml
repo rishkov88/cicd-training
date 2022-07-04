@@ -30,17 +30,6 @@ aws_cli: &aws_cli     ## image du cli d'amazon
 ################# section de des jobs ###############
 
 jobs:
-    create_network_infra:
-        <<: *aws_cli
-        steps:
-          - checkout
-          - run: 
-                name: create network stack cloudformation
-                command: |
-                    aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
-                    --template-file .circleci/aws_config/networkinfrastructure.yml
-#                    --parameter-overrides aws_config/networkparameter.json
-          - destroy_infra   # rollback if fail 
 
     create_server_infra:
         <<: *aws_cli
@@ -49,14 +38,15 @@ jobs:
           - run:
                 name: create server stack cloudformation
                 command: |
-                    aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
-                    --template-file .circleci/aws_config/serverinfrastructure.yml
+                    aws cloudformation deploy --stack-name infrastructure-${CIRCLE_PROJECT_REPONAME} \
+                    --template-file .circleci/aws_config/template.yml
+#                    --parameter-overrides aws_config/networkparameter.json
           - destroy_infra   # rollback if fail 
 
     write_inventory:
         <<: *aws_cli
         steps:
-          - run: cat inventory
+          #- run: cat inventory
           - checkout
           - run:  # write inventory file
                 name: write inventory file
@@ -110,10 +100,7 @@ jobs:
 workflows:
   cd_workflow:
     jobs:
-      - create_network_infra
-      - create_server_infra:
-          requires:
-            - create_network_infra
+      - create_server_infra
       - write_inventory:
           requires:
             - create_server_infra

@@ -130,4 +130,5 @@ workflows:
 #          requires:
 #            - deploy_server
       
-aws cloudformation describe-instances --query " Reservation[*].Instances[*].PublicIpAddress --output text"
+
+      

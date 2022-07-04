@@ -43,7 +43,7 @@ jobs:
     write_inventory:
         <<: *aws_cli
         steps:
-          - run: cat inventory
+          - run: cat inventory.txt
           - checkout
           - run:  # write inventory file
                 name: write inventory file

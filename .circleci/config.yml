@@ -5,8 +5,6 @@ version: 2.1
 ## section de commande de factorisation de code
 commands:
     restore:    ## job de suppression des piles cloudformation
-      docker: 
-        - image: amazon/aws-cli
       steps:
         - run:
             name: destroy infrastructure

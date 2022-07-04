@@ -70,7 +70,7 @@ jobs:
                     aws ec2 describe-instances --query \
                     "Reservations[*].Instances[*].PublicIpAddress"  \
                     --output text >> inventory.txt
-          - run: cat inventory.txt && apt-get install tar -y
+          - run: cat inventory.txt && yum install tar -y
           - persist_to_workspace:
                 root: ~/
                 paths:
@@ -86,7 +86,7 @@ jobs:
           - checkout
           - attach_workspace:
                 at: ~/
-          - run: apt-get install && cat inventory.txt
+          - run: yum install tar -y && cat inventory.txt
           - add_ssh_keys: 
                 fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
           - run:

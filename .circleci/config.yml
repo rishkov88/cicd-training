@@ -81,17 +81,16 @@ jobs:
         steps:
           - checkout
           - add_ssh_keys: 
-              fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
+                fingerprints: "3d:d8:77:38:1a:5e:75:7a:9d:d8:13:37:de:57:e7:23"
           - run:
                 name: install ansible
                 command: |
                     apt-get update && apt-get install ansible -y
           - run:
                 name: run playbook
-                command: |
-                    ansible-playbook .circleci/main.yml -i .circleci/inventory.yml
-          - destroy_network
-          - destroy_servers
+                command: ansible-playbook .circleci/main.yml -i .circleci/inventory.yml
+#          - destroy_network
+#          - destroy_servers
 
 ### section de smoke test
     smoke_test:

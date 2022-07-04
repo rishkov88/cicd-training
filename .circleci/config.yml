@@ -4,23 +4,15 @@ version: 2.1
 
 ## section de commande de factorisation de code
 commands:
-    destroy_network:    ## job de suppression de la  pile du réseau cloudformation
+    destroy_infra:      ## job de suppression de la  pile du réseau cloudformation
       steps:
         - run:
-            name: destroy network infrastructure
+            name: destroy infrastructure
             when: on_fail
 #            command: echo "bravo, vous avez échoué le réseau"
-            command: aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
-
-    destroy_servers:    ## job de suppression de la pile des serveurs cloudformation
-      steps:
-        - run:
-            name: destroy server infrastructure
-            when: on_fail
-#            command: echo "bravo, vous avez échoué le server"
-            command: aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME}
-            requires:
-                - destroy_network
+            command: |
+                aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} && \
+                aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME}
 
 ## Dockers image
 python_ansible: &python_ansible
@@ -42,15 +34,14 @@ jobs:
         <<: *aws_cli
         steps:
           - checkout
-          - run: cat inventory.txt
+          #- run: cat inventory.txt
           - run: 
                 name: create network stack cloudformation
                 command: |
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
-          - destroy_network  # rollback if fail
-          - destroy_servers  # rollback if fail
+          - destroy_infra  # rollback if fail
 
     create_server_infra:
         <<: *aws_cli
@@ -61,8 +52,7 @@ jobs:
                 command: |
                     aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/serverinfrastructure.yml
-          - destroy_network   # rollback if fail
-          - destroy_servers   # rollback if fail
+          - destroy_infra   # rollback if fail
 
     write_inventory:
         <<: *aws_cli
@@ -78,8 +68,7 @@ jobs:
                 root: .circleci/
                 paths:
                   - inventory.txt
-          - destroy_network   # rollback if fail
-          - destroy_servers   # rollback if fail
+          - destroy_infra   # rollback if fail
 
 ### Deploy in infrastructure
 
@@ -98,8 +87,7 @@ jobs:
           - run:
                 name: run playbook
                 command: ansible-playbook .circleci/main.yml -i .circleci/inventory.txt
-          - destroy_network   # rollback if fail
-          - destroy_servers   # rollback if fail
+          - destroy_infra   # rollback if fail
 
 ### section de smoke test
     smoke_test:
@@ -115,8 +103,7 @@ jobs:
                     else
                           echo "It's failled"
                     fi
-          - destroy_network   # rollback if fail
-          - destroy_servers   # rollback if fail               
+          - destroy_infra   # rollback if fail               
 
 ################# Workflow section #################
 

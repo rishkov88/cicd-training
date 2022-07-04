@@ -62,7 +62,7 @@ jobs:
                     --output text >> .circleci/inventory.yml
           - run: cat .circleci/inventory.yml
           - restore  # rollback if fail
-            when: on_fail
+              when: on_fail
 
 
 ### Deploy in infrastructure

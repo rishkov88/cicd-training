@@ -46,8 +46,7 @@ jobs:
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
-          - destroy_server_infra    # rollback if fail
-          - destroy_network_infra   # rollback if fail
+          - destroy_infra   # rollback if fail 
 
     create_server_infra:
         <<: *aws_cli
@@ -58,13 +57,12 @@ jobs:
                 command: |
                     aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/serverinfrastructure.yml
-          - destroy_server_infra    # rollback if fail
-          - destroy_network_infra   # rollback if fail
+          - destroy_infra   # rollback if fail 
 
     write_inventory:
         <<: *aws_cli
         steps:
-          - run: cat inventory
+          #- run: cat inventory
           - checkout
           - run:  # write inventory file
                 name: write inventory file
@@ -76,8 +74,7 @@ jobs:
                 root: .circleci/
                 paths:
                   - inventory.txt
-          - destroy_server_infra    # rollback if fail
-          - destroy_network_infra   # rollback if fail
+          - destroy_infra   # rollback if fail 
 
 ### Deploy in infrastructure
 
@@ -96,8 +93,7 @@ jobs:
           - run:
                 name: run playbook
                 command: ansible-playbook .circleci/main.yml -i .circleci/inventory.txt
-          - destroy_server_infra    # rollback if fail
-          - destroy_network_infra   # rollback if fail
+          - destroy_infra   # rollback if fail 
 
 ### section de smoke test
     smoke_test:
@@ -113,8 +109,7 @@ jobs:
                     else
                           echo "It's failled"
                     fi
-          - destroy_server_infra    # rollback if fail
-          - destroy_network_infra   # rollback if fail               
+          - destroy_infra   # rollback if fail               
 
 ################# Workflow section #################
 

@@ -108,7 +108,6 @@ jobs:
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail               
             
-
 workflows:
   cd_workflow:
     jobs:

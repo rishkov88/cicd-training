@@ -91,7 +91,7 @@ jobs:
 
 ### section de smoke test
     smoke_test:
-        <<: *alpine
+        <<: *aws_cli
         steps:
           - run: 
                 name: run test
@@ -122,6 +122,7 @@ workflows:
       - deploy_server:
           requires:
             - create_server_infra
+            - write_inventory
       - smoke_test:
           requires:
             - deploy_server

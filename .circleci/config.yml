@@ -95,7 +95,7 @@ jobs:
                     apt-get update && apt-get install ansible -y
           - run:
                 name: run playbook
-                command: ansible-playbook .circleci/main.yml -i workspace/inventory.txt
+                command: ansible-playbook .circleci/main.yml -i .circleci/inventory.txt
           - destroy_network   # rollback if fail
           - destroy_servers   # rollback if fail
 

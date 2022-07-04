@@ -13,6 +13,7 @@ commands:
             command: |
                 aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                 && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
+              when: on_fail
 
 ## Dockers image
 python_ansible:
@@ -41,7 +42,7 @@ jobs:
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file ./circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
-         # - restore  # rollback if fail
+          - restore  # rollback if fail
             #  when: on_fail
 
     create_server_infra:
@@ -62,7 +63,7 @@ jobs:
                     --output text >> .circleci/inventory.yml
           - run: cat .circleci/inventory.yml
           - restore  # rollback if fail
-              when: on_fail
+              #when: on_fail
 
 
 ### Deploy in infrastructure

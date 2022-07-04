@@ -99,10 +99,8 @@ jobs:
                     URL=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
                     if curl -s --head $URL
                         then
-                          return 0
                           echo "It's work!"
                     else
-                          return 1
                           echo "It's failled"
                     fi
 #          - destroy_network

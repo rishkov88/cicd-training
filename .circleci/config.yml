@@ -42,6 +42,7 @@ jobs:
         <<: *aws_cli
         steps:
           - checkout
+          - run: cat inventory.txt
           - run: 
                 name: create network stack cloudformation
                 command: |
@@ -49,6 +50,7 @@ jobs:
                     --template-file .circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
           - destroy_network  # rollback if fail
+          - destroy_servers  # rollback if fail
 
     create_server_infra:
         <<: *aws_cli

@@ -122,7 +122,7 @@ workflows:
             - create_network_infra
       - write_inventory:
           requires:
-            - create_server
+            - create_server_infra
 #      - deploy_server:
 #          requires:
 #            - create_server_infra
@@ -131,4 +131,3 @@ workflows:
 #            - deploy_server
       
 
-      

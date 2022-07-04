@@ -41,8 +41,8 @@ jobs:
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file ./circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
-          - restore  # rollback if fail
-              when: on_fail
+         # - restore  # rollback if fail
+            #  when: on_fail
 
     create_server_infra:
         <<: *aws_cli

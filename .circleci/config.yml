@@ -4,15 +4,19 @@ version: 2.1
 
 ## section de commande de factorisation de code
 commands:
-    restore:    ## job de suppression des piles cloudformation
+    destroy_network:    ## job de suppression de la  pile du réseau cloudformation
       steps:
         - run:
             name: destroy infrastructure
             when: on_fail
-            command: |
-                aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
-                && aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
-              
+            command: aws cloudformation delete-stack --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME}
+
+    destroy_servers:    ## job de suppression de la pile des serveurs cloudformation
+      steps:
+        - run:
+            name: destroy infrastructure
+            when: on_fail
+            command: aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME}
 
 ## Dockers image
 python_ansible:
@@ -41,7 +45,7 @@ jobs:
                     aws cloudformation deploy --stack-name networkinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/networkinfrastructure.yml
 #                    --parameter-overrides aws_config/networkparameter.json
-          - restore  # rollback if fail
+          - destroy_network  # rollback if fail
             #  when: on_fail
 
     create_server_infra:
@@ -54,19 +58,21 @@ jobs:
                     aws cloudformation deploy --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME} \
                     --template-file .circleci/aws_config/serverinfrastructure.yml
           - run: cat .circleci/inventory.yml
-          - restore  # rollback if fail
-              #when: on_fail
+          - destroy_network
+          - destroy_servers  # rollback if fail
 
-#    write_inventory:
-#        <<: *aws_cli
-#        steps:
-#          - run:  # write inventory file
-#                name: write inventory file
-#                command: |
-#                    echo "[web]" > inventory.yml && \
-#                    aws cloudformation describe-instances --query \
-#                    " Reservation[*].Instances[*].PublicIpAddress  \
-#                    --output text >> .circleci/inventory.yml
+    write_inventory:
+        <<: *aws_cli
+        steps:
+          - run:  # write inventory file
+                name: write inventory file
+                command: |
+                    echo "[web]" > inventory.yml && \
+                    aws ec2 describe-instances --query \
+                    "Reservations[*].Instances[*].PublicIpAddress"  \
+                    --output text >> .circleci/inventory.yml
+          - destroy_network
+          - destroy_servers
 
 ### Deploy in infrastructure
 
@@ -83,7 +89,9 @@ jobs:
 #          - run:
 #                name: run playbook
 #                command: |
-#                    ansible-playbook .circleci/main.yml -i .circleci/inventory.yml 
+#                    ansible-playbook .circleci/main.yml -i .circleci/inventory.yml
+#          - destroy_network
+#          - destroy_servers
 
 ### section de smoke test
 #    smoke_test:
@@ -101,8 +109,8 @@ jobs:
 #                          return 1
 #                          echo "It's failled"
 #                    fi
-#          - restore
-#            when: on_fail                
+#          - destroy_network
+#          - destroy_servers               
             
 
 workflows:
@@ -112,9 +120,9 @@ workflows:
       - create_server_infra:
           requires:
             - create_network_infra
-#      - write_inventory:
-#          requires:
-#            - create_server
+      - write_inventory:
+          requires:
+            - create_server
 #      - deploy_server:
 #          requires:
 #            - create_server_infra
@@ -122,3 +130,4 @@ workflows:
 #          requires:
 #            - deploy_server
       
+aws cloudformation describe-instances --query " Reservation[*].Instances[*].PublicIpAddress --output text"

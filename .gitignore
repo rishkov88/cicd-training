@@ -1,2 +1,3 @@
 ansible-test.pem
 config-copie.yml
+.circleci/inventory.yml

@@ -121,9 +121,9 @@ workflows:
             - create_server_infra
       - deploy_server:
           requires:
-#            - create_server_infra
-#      - semoke_test:
-#          requires:
-#            - deploy_server
+            - create_server_infra
+      - semoke_test:
+          requires:
+            - deploy_server
       
 

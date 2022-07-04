@@ -19,7 +19,7 @@ commands:
             command: aws cloudformation delete-stack --stack-name serverinfra-${CIRCLE_PROJECT_REPONAME}
 
 ## Dockers image
-python_ansible:
+python_ansible: &python_ansible
     docker:
       - image: python:3.9-bullseye
 

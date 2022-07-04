@@ -94,21 +94,21 @@ jobs:
           - destroy_servers
 
 ### section de smoke test
-#    smoke_test:
-#        <<: *alpine
-#        steps:
-#          - run: 
-#                name: run test
-#                command: 
-#                    URL="aws cloudformation describe-instances --query " Reservation[*].Instances[*].PublicIpAddress""
-#                    if curl -s --head "https://google.com"
-#                        then
-#                          return 0
-#                          echo "It's work!"
-#                    else
-#                          return 1
-#                          echo "It's failled"
-#                    fi
+    smoke_test:
+        <<: *alpine
+        steps:
+          - run: 
+                name: run test
+                command: |
+                    URL=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
+                    if curl -s --head $URL
+                        then
+                          return 0
+                          echo "It's work!"
+                    else
+                          return 1
+                          echo "It's failled"
+                    fi
 #          - destroy_network
 #          - destroy_servers               
             
